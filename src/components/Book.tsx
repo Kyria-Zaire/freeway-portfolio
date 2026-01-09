@@ -131,9 +131,12 @@ export const Page = forwardRef<HTMLDivElement, PageProps>(({ children, pageNumbe
       <div className="absolute left-0 top-0 bottom-0 w-[2vw] max-w-3 bg-gradient-to-r from-black/5 to-transparent pointer-events-none z-10" />
       
       {/* Contenu */}
-      <div 
+      <div
         className="w-full h-full overflow-y-auto overflow-x-hidden"
-        style={{ fontSize: 'clamp(12px, 3.5vw, 16px)' }}
+        style={{
+          fontSize: 'clamp(12px, 3.5vw, 16px)',
+          pointerEvents: 'auto' // Permet interactions dans le contenu
+        }}
       >
         {children}
       </div>
@@ -234,7 +237,7 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
 
       <div className="w-full h-full flex items-center justify-center">
         {!isMobile && (
-          <div 
+          <div
             className="absolute left-1/2 -translate-x-1/2 z-20 pointer-events-none"
             style={{
               top: '2.5%', bottom: '2.5%', width: '8px',
@@ -244,25 +247,24 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           />
         )}
 
-        {/* WRAPPER SWIPE CRITIQUE 
-            On utilise motion.div avec touchAction: none pour forcer le contrôle
-        */}
+        {/* WRAPPER SWIPE - Zone tactile maximale sur mobile */}
         <motion.div
-          className="relative z-10"
-          style={{ 
-            width: isMobile ? '100%' : 'auto', 
+          className="relative"
+          style={{
+            width: isMobile ? '100%' : 'auto',
             height: isMobile ? '100%' : 'auto',
-            touchAction: 'none' // Empêche le scroll natif du navigateur
+            touchAction: isMobile ? 'pan-x' : 'auto', // pan-x autorise swipe horizontal uniquement
+            zIndex: 10
           }}
           onPanEnd={(_event, info) => {
-             // Swipe mobile : on ignore _event, on utilise uniquement info
+             // Swipe mobile uniquement : seuil réduit à 30px pour meilleure réactivité
              if (!isMobile || !bookRef.current) return;
 
-             // Seuil de déclenchement (50px)
-             if (info.offset.x > 50) {
-               bookRef.current.pageFlip().flipPrev(); // Swipe Droite -> Reculer
-             } else if (info.offset.x < -50) {
-               bookRef.current.pageFlip().flipNext(); // Swipe Gauche -> Avancer
+             // Seuil de déclenchement : 30px (plus réactif qu'avant)
+             if (info.offset.x > 30) {
+               bookRef.current.pageFlip().flipPrev(); // Swipe Droite → Page précédente
+             } else if (info.offset.x < -30) {
+               bookRef.current.pageFlip().flipNext(); // Swipe Gauche → Page suivante
              }
           }}
         >
@@ -277,19 +279,19 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
             maxHeight={height}
             maxShadowOpacity={isMobile ? 0.1 : 0.35}
             showCover={true}
-            mobileScrollSupport={false} // Désactivé car on gère avec Motion
+            mobileScrollSupport={false}
             onFlip={onFlip}
             className="shadow-2xl"
-            style={{ margin: '0 auto' }}
+            style={{ margin: '0 auto', pointerEvents: 'auto' }}
             startPage={0}
             drawShadow={!isMobile}
             flippingTime={isMobile ? 400 : 600}
             usePortrait={isMobile}
             startZIndex={0}
             autoSize={false}
-            clickEventForward={true}
-            useMouseEvents={false} // Désactivé pour laisser la main à Motion
-            swipeDistance={0} // Désactivé le swipe natif de la lib
+            clickEventForward={true} // Permet clics sur liens/boutons dans pages
+            useMouseEvents={false}
+            swipeDistance={0} // Swipe géré par Motion
             showPageCorners={!isMobile}
             disableFlipByClick={isMobile || disableFlip}
           >

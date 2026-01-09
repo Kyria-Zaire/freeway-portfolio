@@ -6,6 +6,7 @@
  */
 
 import { useState } from 'react'
+import emailjs from '@emailjs/browser'
 import { motion } from 'framer-motion'
 import { 
   Send, 
@@ -25,6 +26,7 @@ export const PageContact = () => {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
@@ -34,18 +36,46 @@ export const PageContact = () => {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setErrorMsg('');
 
-    // Simulation d'envoi
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    // Validation email simple
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setErrorMsg('Adresse email invalide.');
+      return;
+    }
 
-    setIsSubmitting(false)
-    setIsSuccess(true)
-    setFormData({ name: '', email: '', message: '' })
+    setIsSubmitting(true);
+    try {
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-    // Reset après 5 secondes
-    setTimeout(() => setIsSuccess(false), 5000)
+      const result = await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          from_name: formData.name,
+          reply_to: formData.email,
+          message: formData.message
+        },
+        publicKey
+      );
+
+      if (result.status === 200) {
+        setIsSuccess(true);
+        setFormData({ name: '', email: '', message: '' });
+        setTimeout(() => setIsSuccess(false), 5000);
+      } else {
+        setErrorMsg("L'envoi a échoué. Réessayez ou contactez-moi directement.");
+      }
+    } catch (err) {
+      setErrorMsg("L'envoi a échoué. Réessayez ou contactez-moi directement.");
+      console.error('Erreur EmailJS:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const socialLinks = [
@@ -122,6 +152,9 @@ export const PageContact = () => {
             transition={{ delay: 0.2 }}
             className="space-y-4 sm:space-y-5"
           >
+            {errorMsg && (
+              <div className="text-red-500 text-center mb-2" style={{ fontSize: 'clamp(12px, 3vw, 14px)' }}>{errorMsg}</div>
+            )}
             {/* Nom */}
             <div>
               <label 

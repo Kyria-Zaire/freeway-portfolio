@@ -304,7 +304,7 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
         {/* Types incomplets */}
         <motion.div
           style={{ width: '100%', height: '100%', zIndex: 10, touchAction: 'none', position: 'relative' }}
-          onPanEnd={(e, info) => {
+          onPanEnd={(_, info) => {
             if (!isMobile || !bookRef.current) return;
             if (info.offset.x > 50) {
               bookRef.current.pageFlip().flipPrev();

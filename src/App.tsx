@@ -49,7 +49,7 @@ function App() {
       </PageComponent>
 
       <PageComponent pageNumber={6} totalPages={TOTAL_PAGES - 1}>
-        <PageContact setDisableFlip={setDisableFlip} />
+        <PageContact />
       </PageComponent>
 
       <PageComponent pageNumber={7} totalPages={TOTAL_PAGES - 1}>

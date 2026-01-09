@@ -313,7 +313,7 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           maxHeight={height}
           maxShadowOpacity={isMobile ? 0.1 : 0.35}
           showCover={true}
-          mobileScrollSupport={true}
+          mobileScrollSupport={!isMobile}  // Désactive le scroll/swap natif sur mobile
           onFlip={onFlip}
           className=""
           style={{}}
@@ -324,7 +324,7 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           startZIndex={0}
           autoSize={false}
           clickEventForward={false}
-          useMouseEvents={true}
+          useMouseEvents={!isMobile} // Désactive les mouse events natifs sur mobile
           swipeDistance={isMobile ? 15 : 30}
           showPageCorners={!isMobile}
           disableFlipByClick={isMobile || disableFlip}

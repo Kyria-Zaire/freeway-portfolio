@@ -151,6 +151,9 @@ export const PageContact = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
             className="space-y-4 sm:space-y-5"
+            onMouseDown={e => e.stopPropagation()}
+            onKeyDown={e => e.stopPropagation()}
+            onTouchStart={e => e.stopPropagation()}
           >
             {errorMsg && (
               <div className="text-red-500 text-center mb-2" style={{ fontSize: 'clamp(12px, 3vw, 14px)' }}>{errorMsg}</div>

@@ -5,6 +5,7 @@
  */
 
 import { Book, PageComponent } from './components'
+import { useState } from 'react'
 import { 
   PageFrontCover,
   PageCover, 
@@ -19,8 +20,9 @@ import {
 const TOTAL_PAGES = 8
 
 function App() {
+  const [disableFlip, setDisableFlip] = useState(false)
   return (
-    <Book>
+    <Book disableFlip={disableFlip}>
       {/* Couverture du livre fermé */}
       <PageComponent>
         <PageFrontCover />
@@ -47,7 +49,7 @@ function App() {
       </PageComponent>
 
       <PageComponent pageNumber={6} totalPages={TOTAL_PAGES - 1}>
-        <PageContact />
+        <PageContact setDisableFlip={setDisableFlip} />
       </PageComponent>
 
       <PageComponent pageNumber={7} totalPages={TOTAL_PAGES - 1}>

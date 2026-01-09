@@ -27,6 +27,8 @@ interface PageProps {
 
 interface BookProps {
   children: ReactNode
+  disableFlip?: boolean
+  setDisableFlip?: (v: boolean) => void
 }
 
 interface FlipEvent {
@@ -157,7 +159,7 @@ export const PageComponent = forwardRef(Page)
 // Composant Book PLEIN ÉCRAN
 // ============================================
 
-export const Book = ({ children }: BookProps) => {
+export const Book = ({ children, disableFlip = false }: BookProps) => {
   const bookRef = useRef<PageFlipRef>(null)
   const { width, height, isMobile } = useFullScreenBook()
   
@@ -292,7 +294,7 @@ export const Book = ({ children }: BookProps) => {
           useMouseEvents={true}
           swipeDistance={isMobile ? 15 : 30}
           showPageCorners={!isMobile}
-          disableFlipByClick={isMobile}
+          disableFlipByClick={isMobile || disableFlip}
         >
           {children}
         </HTMLFlipBook>

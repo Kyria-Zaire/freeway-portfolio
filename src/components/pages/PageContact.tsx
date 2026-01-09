@@ -18,7 +18,11 @@ import {
   MapPin
 } from 'lucide-react'
 
-export const PageContact = () => {
+type PageContactProps = {
+  setDisableFlip?: (disable: boolean) => void
+}
+
+export const PageContact = ({ setDisableFlip }: PageContactProps) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -82,6 +86,10 @@ export const PageContact = () => {
     { icon: Linkedin, href: 'https://www.linkedin.com/in/freeway-jr-za%C3%AFre-142052219/', label: 'LinkedIn' },
     { icon: Github, href: 'https://github.com/Kyria-Zaire', label: 'GitHub' },
   ]
+
+  // Gestion du focus sur le formulaire pour désactiver la navigation du flipbook
+  const handleFormFocus = () => setDisableFlip && setDisableFlip(true)
+  const handleFormBlur = () => setDisableFlip && setDisableFlip(false)
 
   return (
     <div 
@@ -154,6 +162,11 @@ export const PageContact = () => {
             onMouseDown={e => e.stopPropagation()}
             onKeyDown={e => e.stopPropagation()}
             onTouchStart={e => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
+            onPointerDown={e => e.stopPropagation()}
+            onPointerUp={e => e.stopPropagation()}
+            onFocusCapture={e => { e.stopPropagation(); handleFormFocus() }}
+            onBlurCapture={e => { e.stopPropagation(); handleFormBlur() }}
           >
             {errorMsg && (
               <div className="text-red-500 text-center mb-2" style={{ fontSize: 'clamp(12px, 3vw, 14px)' }}>{errorMsg}</div>

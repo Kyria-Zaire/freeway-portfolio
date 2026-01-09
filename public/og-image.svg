@@ -1,0 +1,77 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond sombre avec dégradé subtil -->
+  <rect width="1200" height="630" fill="#1A1A2E"/>
+  <rect width="1200" height="630" fill="url(#bgGradient)" opacity="0.5"/>
+  
+  <!-- Cercles décoratifs en arrière-plan -->
+  <circle cx="200" cy="500" r="300" fill="url(#glowGradient)" opacity="0.08"/>
+  <circle cx="1000" cy="150" r="250" fill="url(#glowGradient)" opacity="0.05"/>
+  
+  <!-- Ligne décorative supérieure -->
+  <rect x="500" y="120" width="200" height="2" fill="url(#lineGradient)" rx="1"/>
+  
+  <!-- Badge "Portfolio 2026" -->
+  <rect x="500" y="150" width="200" height="30" rx="15" fill="rgba(0, 163, 255, 0.15)"/>
+  <text x="600" y="171" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" font-weight="500" fill="rgba(0, 163, 255, 0.8)" letter-spacing="2">
+    PORTFOLIO 2026
+  </text>
+  
+  <!-- Logo IMORIA (texte stylisé) -->
+  <text x="600" y="280" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-size="120" font-weight="700" fill="url(#textGradient)">
+    IMORIA
+  </text>
+  
+  <!-- Ligne décorative sous le logo -->
+  <rect x="450" y="310" width="300" height="3" fill="url(#lineGradient)" rx="1.5"/>
+  
+  <!-- Nom -->
+  <text x="600" y="400" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-size="48" font-weight="600" fill="#FFFFFF">
+    Freeway.jr
+  </text>
+  
+  <!-- Titre / Rôle -->
+  <text x="600" y="460" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="400" fill="rgba(255, 255, 255, 0.7)" letter-spacing="4">
+    CTO &amp; TECH BUILDER
+  </text>
+  
+  <!-- Localisation -->
+  <text x="600" y="520" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="400" fill="rgba(255, 255, 255, 0.4)" letter-spacing="2">
+    REIMS, FRANCE
+  </text>
+  
+  <!-- Icône localisation -->
+  <circle cx="505" cy="514" r="3" fill="#00A3FF" opacity="0.6"/>
+  
+  <!-- Coins décoratifs -->
+  <path d="M40 40 L40 80 M40 40 L80 40" stroke="rgba(0, 163, 255, 0.3)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M1160 40 L1160 80 M1160 40 L1120 40" stroke="rgba(0, 163, 255, 0.3)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M40 590 L40 550 M40 590 L80 590" stroke="rgba(0, 163, 255, 0.3)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M1160 590 L1160 550 M1160 590 L1120 590" stroke="rgba(0, 163, 255, 0.3)" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Dégradés -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00A3FF" stop-opacity="0.1"/>
+      <stop offset="50%" stop-color="#1A1A2E" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#00A3FF" stop-opacity="0.05"/>
+    </linearGradient>
+    
+    <radialGradient id="glowGradient" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#00A3FF"/>
+      <stop offset="100%" stop-color="#00A3FF" stop-opacity="0"/>
+    </radialGradient>
+    
+    <linearGradient id="textGradient" x1="300" y1="200" x2="900" y2="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00A3FF"/>
+      <stop offset="50%" stop-color="#4DB8FF"/>
+      <stop offset="100%" stop-color="#00A3FF"/>
+    </linearGradient>
+    
+    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="transparent"/>
+      <stop offset="50%" stop-color="#00A3FF"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </linearGradient>
+  </defs>
+</svg>
+

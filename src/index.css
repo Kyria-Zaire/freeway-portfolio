@@ -1,0 +1,110 @@
+/* ============================================
+   IMORIA Portfolio - Custom Theme
+   ============================================
+   Brand Colors & Typography Configuration
+   Based on IMORIA_PRD.md specifications
+*/
+
+/* Google Fonts Import - must be first */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+/* Tailwind CSS v4 */
+@import "tailwindcss";
+
+@theme {
+  /* ===========================================
+     IMORIA Brand Colors
+     =========================================== */
+  
+  /* Primary: IMORIA Blue (Electric Blue/Cyan Accent) */
+  --color-imoria-blue: #00A3FF;
+  --color-imoria-blue-light: #33B5FF;
+  --color-imoria-blue-dark: #0082CC;
+  --color-imoria-blue-50: #E6F7FF;
+  --color-imoria-blue-100: #BAE7FF;
+  --color-imoria-blue-200: #91D5FF;
+  --color-imoria-blue-300: #69C0FF;
+  --color-imoria-blue-400: #40A9FF;
+  --color-imoria-blue-500: #00A3FF;
+  --color-imoria-blue-600: #0082CC;
+  --color-imoria-blue-700: #006199;
+  --color-imoria-blue-800: #004166;
+  --color-imoria-blue-900: #002033;
+
+  /* Background Colors */
+  --color-paper: #FDFBF7;           /* Off-white paper texture */
+  --color-paper-dark: #F5F0E8;      /* Slightly darker paper */
+  --color-book-bg: #1A1A2E;         /* Dark background for app container */
+  --color-book-bg-light: #16213E;   /* Lighter dark variant */
+
+  /* Neutral Colors */
+  --color-text-primary: #1F2937;    /* Main text */
+  --color-text-secondary: #4B5563;  /* Secondary text */
+  --color-text-muted: #9CA3AF;      /* Muted/placeholder text */
+
+  /* ===========================================
+     Typography - Font Families
+     =========================================== */
+  
+  /* Poppins for Headers */
+  --font-heading: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  
+  /* Inter for Body Text */
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* ===========================================
+     Shadows & Effects
+     =========================================== */
+  
+  --shadow-book: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 
+                 0 12px 24px -8px rgba(0, 0, 0, 0.3);
+  --shadow-page: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+                 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+
+  /* ===========================================
+     Border Radius
+     =========================================== */
+  
+  --radius-book: 0.5rem;
+  --radius-card: 0.75rem;
+}
+
+/* ===========================================
+   Base Styles
+   =========================================== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-book-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings use Poppins */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* ===========================================
+   Utility Classes for IMORIA
+   =========================================== */
+
+/* Paper texture background */
+.bg-paper-texture {
+  background-color: var(--color-paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23d4d0c8' fill-opacity='0.2' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* Book shadow effect */
+.shadow-book {
+  box-shadow: var(--shadow-book);
+}
+
+/* Page shadow effect */
+.shadow-page {
+  box-shadow: var(--shadow-page);
+}

@@ -302,35 +302,47 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
         )}
 
         {/* Types incomplets */}
-        <HTMLFlipBook
-          ref={bookRef}
-          width={width}
-          height={height}
-          size="fixed"
-          minWidth={280}
-          maxWidth={isMobile ? width : width}
-          minHeight={400}
-          maxHeight={height}
-          maxShadowOpacity={isMobile ? 0.1 : 0.35}
-          showCover={true}
-          mobileScrollSupport={!isMobile}  // Désactive le scroll/swap natif sur mobile
-          onFlip={onFlip}
-          className=""
-          style={{}}
-          startPage={0}
-          drawShadow={!isMobile}
-          flippingTime={isMobile ? 400 : 600}
-          usePortrait={isMobile}
-          startZIndex={0}
-          autoSize={false}
-          clickEventForward={false}
-          useMouseEvents={!isMobile} // Désactive les mouse events natifs sur mobile
-          swipeDistance={isMobile ? 15 : 30}
-          showPageCorners={!isMobile}
-          disableFlipByClick={isMobile || disableFlip}
+        <motion.div
+          style={{ width: '100%', height: '100%', zIndex: 10, touchAction: 'none', position: 'relative' }}
+          onPanEnd={(e, info) => {
+            if (!isMobile || !bookRef.current) return;
+            if (info.offset.x > 50) {
+              bookRef.current.pageFlip().flipPrev();
+            } else if (info.offset.x < -50) {
+              bookRef.current.pageFlip().flipNext();
+            }
+          }}
         >
-          {children}
-        </HTMLFlipBook>
+          <HTMLFlipBook
+            ref={bookRef}
+            width={width}
+            height={height}
+            size="fixed"
+            minWidth={280}
+            maxWidth={isMobile ? width : width}
+            minHeight={400}
+            maxHeight={height}
+            maxShadowOpacity={isMobile ? 0.1 : 0.35}
+            showCover={true}
+            mobileScrollSupport={false}
+            onFlip={onFlip}
+            className=""
+            style={{}}
+            startPage={0}
+            drawShadow={!isMobile}
+            flippingTime={isMobile ? 400 : 600}
+            usePortrait={isMobile}
+            startZIndex={0}
+            autoSize={false}
+            clickEventForward={false}
+            useMouseEvents={false}
+            swipeDistance={isMobile ? 15 : 30}
+            showPageCorners={!isMobile}
+            disableFlipByClick={isMobile || disableFlip}
+          >
+            {children}
+          </HTMLFlipBook>
+        </motion.div>
       </div>
 
 

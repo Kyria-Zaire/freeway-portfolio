@@ -34,7 +34,7 @@ const containerVariants = {
   initial: { scale: 1 },
   hover: { 
     scale: 1.02,
-    transition: { duration: 0.3, ease: 'easeOut' }
+    transition: { duration: 0.3, ease: 'easeOut' as const }
   }
 }
 

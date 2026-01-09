@@ -9,7 +9,7 @@
 import { forwardRef } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  Code2, 
+  // Code2,
   Database, 
   Globe,
   Smartphone,
@@ -116,7 +116,7 @@ const headerVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: 'easeOut' }
+    transition: { duration: 0.5, ease: 'easeOut' as const }
   }
 }
 

@@ -43,7 +43,7 @@ const itemVariants = {
     transition: {
       delay: index * 0.15,
       duration: 0.5,
-      ease: 'easeOut'
+      ease: 'easeOut' as const
     }
   })
 }

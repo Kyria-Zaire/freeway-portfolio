@@ -266,7 +266,7 @@ export const Book = ({ children }: BookProps) => {
           />
         )}
 
-        {/* @ts-expect-error - Types incomplets */}
+        {/* Types incomplets */}
         <HTMLFlipBook
           ref={bookRef}
           width={width}

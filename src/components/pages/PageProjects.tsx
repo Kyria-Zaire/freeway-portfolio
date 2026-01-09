@@ -78,7 +78,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4, ease: 'easeOut' }
+    transition: { duration: 0.4, ease: 'easeOut' as const }
   }
 }
 
@@ -91,7 +91,7 @@ interface ProjectCardProps {
   index: number
 }
 
-const ProjectCard = ({ project, index }: ProjectCardProps) => (
+const ProjectCard = ({ project }: ProjectCardProps) => (
   <motion.div
     variants={itemVariants}
     className="flex gap-3 p-3 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow"

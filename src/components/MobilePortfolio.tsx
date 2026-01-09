@@ -54,7 +54,7 @@ const cardVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: 'easeOut' }
+    transition: { duration: 0.5, ease: 'easeOut' as const }
   }
 }
 
@@ -64,7 +64,7 @@ const scrollIndicatorVariants = {
     transition: {
       duration: 1.5,
       repeat: Infinity,
-      ease: 'easeInOut'
+      ease: 'easeInOut' as const
     }
   }
 }
@@ -131,11 +131,11 @@ export const MobilePortfolio = () => {
                       name="Freeway.jr"
                       title="Web Developer"
                       email="contact@freeway.dev"
-                      cvUrl="/cv-freeway.pdf"
+                      // cvUrl="/cv-freeway.pdf" // supprimé car non supporté
                       socials={{
                         linkedin: 'https://linkedin.com/in/freeway',
                         github: 'https://github.com/freeway',
-                        twitter: 'https://twitter.com/freeway'
+                        // twitter: 'https://twitter.com/freeway' // supprimé car non supporté
                       }}
                     />
                   ) : (

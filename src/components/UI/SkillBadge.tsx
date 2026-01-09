@@ -68,7 +68,7 @@ const badgeVariants = {
     transition: {
       delay: index * 0.08,
       duration: 0.4,
-      ease: 'easeOut'
+      ease: 'easeOut' as const
     }
   })
 }

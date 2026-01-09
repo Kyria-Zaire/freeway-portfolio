@@ -20,9 +20,8 @@ import {
 const TOTAL_PAGES = 8
 
 function App() {
-  const [disableFlip, setDisableFlip] = useState(false)
   return (
-    <Book disableFlip={disableFlip}>
+    <Book>
       {/* Couverture du livre fermé */}
       <PageComponent>
         <PageFrontCover />

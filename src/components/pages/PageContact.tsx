@@ -181,6 +181,9 @@ export const PageContact = () => {
                 }}
                 onFocus={(e) => e.target.style.borderColor = '#00A3FF'}
                 onBlur={(e) => e.target.style.borderColor = 'rgba(0, 163, 255, 0.2)'}
+                onMouseDown={e => e.stopPropagation()}
+                onKeyDown={e => e.stopPropagation()}
+                onTouchStart={e => e.stopPropagation()}
               />
             </div>
 
@@ -210,6 +213,9 @@ export const PageContact = () => {
                 }}
                 onFocus={(e) => e.target.style.borderColor = '#00A3FF'}
                 onBlur={(e) => e.target.style.borderColor = 'rgba(0, 163, 255, 0.2)'}
+                onMouseDown={e => e.stopPropagation()}
+                onKeyDown={e => e.stopPropagation()}
+                onTouchStart={e => e.stopPropagation()}
               />
             </div>
 
@@ -239,6 +245,9 @@ export const PageContact = () => {
                 }}
                 onFocus={(e) => e.target.style.borderColor = '#00A3FF'}
                 onBlur={(e) => e.target.style.borderColor = 'rgba(0, 163, 255, 0.2)'}
+                onMouseDown={e => e.stopPropagation()}
+                onKeyDown={e => e.stopPropagation()}
+                onTouchStart={e => e.stopPropagation()}
               />
             </div>
 

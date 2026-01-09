@@ -247,23 +247,26 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           />
         )}
 
-        {/* WRAPPER SWIPE - Zone tactile maximale sur mobile */}
+        {/* WRAPPER SWIPE - Gestion mobile avec Framer Motion */}
         <motion.div
           className="relative"
           style={{
             width: isMobile ? '100%' : 'auto',
             height: isMobile ? '100%' : 'auto',
-            touchAction: isMobile ? 'pan-x' : 'auto', // pan-x autorise swipe horizontal uniquement
+            touchAction: isMobile ? 'manipulation' : 'auto',
             zIndex: 10
           }}
           onPanEnd={(_event, info) => {
-             // Swipe mobile uniquement : seuil réduit à 30px pour meilleure réactivité
+             // Swipe mobile avec détection velocity + offset
              if (!isMobile || !bookRef.current) return;
 
-             // Seuil de déclenchement : 30px (plus réactif qu'avant)
-             if (info.offset.x > 30) {
+             const distance = info.offset.x;
+             const velocity = info.velocity.x;
+
+             // Tourne la page si : distance > 30px OU vitesse élevée (> 500)
+             if (distance > 30 || velocity > 500) {
                bookRef.current.pageFlip().flipPrev(); // Swipe Droite → Page précédente
-             } else if (info.offset.x < -30) {
+             } else if (distance < -30 || velocity < -500) {
                bookRef.current.pageFlip().flipNext(); // Swipe Gauche → Page suivante
              }
           }}
@@ -289,9 +292,9 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
             usePortrait={isMobile}
             startZIndex={0}
             autoSize={false}
-            clickEventForward={true} // Permet clics sur liens/boutons dans pages
-            useMouseEvents={false}
-            swipeDistance={0} // Swipe géré par Motion
+            clickEventForward={true}
+            useMouseEvents={!isMobile} // PC: souris active, Mobile: désactivé (géré par Motion)
+            swipeDistance={isMobile ? 0 : 30} // PC: swipe natif 30px, Mobile: géré par Motion
             showPageCorners={!isMobile}
             disableFlipByClick={isMobile || disableFlip}
           >

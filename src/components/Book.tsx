@@ -167,6 +167,36 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
   const [isSoundEnabled, setIsSoundEnabled] = useState(true)
   const [showUI, setShowUI] = useState(true)
 
+  // Gestion swipe mobile personnalisé
+  const touchStartX = useRef<number | null>(null)
+  const touchEndX = useRef<number | null>(null)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!isMobile) return
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isMobile) return
+    touchEndX.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = () => {
+    if (!isMobile || touchStartX.current === null || touchEndX.current === null) return
+    const deltaX = touchEndX.current - touchStartX.current
+    if (Math.abs(deltaX) > 40) {
+      if (deltaX < 0) {
+        // Swipe gauche → page suivante
+        bookRef.current?.pageFlip().flipNext()
+      } else if (deltaX > 0) {
+        // Swipe droite → page précédente
+        bookRef.current?.pageFlip().flipPrev()
+      }
+    }
+    touchStartX.current = null
+    touchEndX.current = null
+  }
+
   // Auto-hide UI sur mobile après 3s
   useEffect(() => {
     if (!isMobile) return
@@ -226,6 +256,9 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
         backgroundColor: isMobile ? '#FDFBF7' : '#1A1A2E'
       }}
       onClick={handleTap}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       {/* ==========================================
           BOUTON SON (en haut à droite)

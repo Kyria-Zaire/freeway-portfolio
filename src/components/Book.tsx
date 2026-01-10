@@ -212,8 +212,10 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
         width: '100vw',
         height: '100dvh',
         backgroundColor: isMobile ? '#FDFBF7' : '#1A1A2E',
-        overscrollBehaviorX: 'none' // Empêche le swipe-back natif
-      }}
+        overscrollBehaviorX: 'none', // Empêche le swipe-back natif
+        userSelect: isMobile ? 'none' : 'auto', // Désactive sélection texte sur mobile
+        WebkitUserSelect: isMobile ? 'none' : 'auto'
+      } as React.CSSProperties}
       onClick={handleTap}
     >
       {/* Bouton Son */}
@@ -248,15 +250,14 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           />
         )}
 
-        {/* WRAPPER SWIPE - Zone tactile prioritaire mais transparente */}
+        {/* WRAPPER SWIPE - Capture les gestes pan sur toute la zone */}
         <motion.div
           className="relative"
           style={{
             width: isMobile ? '100%' : 'auto',
             height: isMobile ? '100%' : 'auto',
             touchAction: isMobile ? 'manipulation' : 'auto',
-            zIndex: 100, // Z-index élevé pour priorité
-            pointerEvents: 'none' // Transparent aux clics, sauf enfants avec auto
+            zIndex: 100
           }}
           onPanEnd={(_event, info) => {
              // Swipe mobile avec détection velocity + offset
@@ -289,6 +290,20 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
              }
           }}
         >
+          {/* OVERLAY INVISIBLE - Capture les swipes sans bloquer les clics */}
+          {isMobile && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 999,
+                pointerEvents: 'none', // Laisse passer les clics mais capture les pans du parent
+                userSelect: 'none',
+                WebkitUserSelect: 'none'
+              } as React.CSSProperties}
+            />
+          )}
+
           <HTMLFlipBook
             ref={bookRef}
             width={width}

@@ -294,27 +294,6 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
             height: isMobile ? '100%' : 'auto'
           }}
         >
-          {/* OVERLAY SWIPE - Capture tactile native avec onTouchStart/End */}
-          {isMobile && (
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                zIndex: 999,
-                touchAction: 'pan-x', // Autorise pan horizontal
-                userSelect: 'none',
-                WebkitUserSelect: 'none',
-                cursor: 'grab'
-              } as React.CSSProperties}
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-              onClick={(e) => {
-                // Ne bloque pas les clics, laisse propager
-                e.stopPropagation();
-              }}
-            />
-          )}
-
           <HTMLFlipBook
             ref={bookRef}
             width={width}
@@ -344,6 +323,29 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           >
             {children}
           </HTMLFlipBook>
+
+          {/* OVERLAY SWIPE - APRÈS FlipBook pour être vraiment au-dessus */}
+          {isMobile && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 9999,
+                touchAction: 'pan-x',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                // Semi-transparent pour debug visuel
+                background: 'rgba(255, 0, 0, 0.05)',
+                pointerEvents: 'auto' // Capture TOUS les événements
+              } as React.CSSProperties}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              onClick={(e) => {
+                console.log('Overlay clicked');
+                e.preventDefault();
+              }}
+            />
+          )}
         </div>
       </div>
 

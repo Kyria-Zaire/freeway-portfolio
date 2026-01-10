@@ -250,57 +250,59 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           />
         )}
 
-        {/* WRAPPER SWIPE - Capture les gestes pan sur toute la zone */}
-        <motion.div
+        {/* WRAPPER SWIPE - Conteneur relatif pour l'overlay */}
+        <div
           className="relative"
           style={{
             width: isMobile ? '100%' : 'auto',
-            height: isMobile ? '100%' : 'auto',
-            touchAction: isMobile ? 'manipulation' : 'auto',
-            zIndex: 100
-          }}
-          onPanEnd={(_event, info) => {
-             // Swipe mobile avec détection velocity + offset
-             if (!isMobile || !bookRef.current) return;
-
-             const distance = info.offset.x;
-             const velocity = info.velocity.x;
-             const currentIndex = bookRef.current.pageFlip().getCurrentPageIndex();
-
-             // Log pour débogage mobile
-             console.log('Swipe détecté - Distance X:', distance, 'Velocity X:', velocity, 'Page actuelle:', currentIndex);
-
-             // Détection swipe DROITE (retour arrière)
-             const isSwipeRight = distance > 30 || velocity > 500;
-             // Détection swipe GAUCHE (avancer)
-             const isSwipeLeft = distance < -30 || velocity < -500;
-
-             if (isSwipeRight && currentIndex > 0) {
-               console.log('→ flipPrev() - Swipe droite détecté');
-               // Utilise flipPrev pour avoir l'animation
-               setTimeout(() => {
-                 bookRef.current?.pageFlip().flipPrev();
-               }, 10);
-             } else if (isSwipeLeft) {
-               console.log('← flipNext() - Swipe gauche détecté');
-               // Utilise flipNext pour avoir l'animation
-               setTimeout(() => {
-                 bookRef.current?.pageFlip().flipNext();
-               }, 10);
-             }
+            height: isMobile ? '100%' : 'auto'
           }}
         >
-          {/* OVERLAY INVISIBLE - Capture les swipes sans bloquer les clics */}
+          {/* OVERLAY SWIPE - Capture UNIQUEMENT les pans, laisse passer les clics */}
           {isMobile && (
-            <div
+            <motion.div
               style={{
                 position: 'absolute',
                 inset: 0,
                 zIndex: 999,
-                pointerEvents: 'none', // Laisse passer les clics mais capture les pans du parent
+                touchAction: 'manipulation',
                 userSelect: 'none',
-                WebkitUserSelect: 'none'
+                WebkitUserSelect: 'none',
+                // Transparent mais capture les gestes
+                background: 'transparent'
               } as React.CSSProperties}
+              onPanEnd={(_event, info) => {
+                // Swipe mobile avec détection velocity + offset
+                if (!bookRef.current) return;
+
+                const distance = info.offset.x;
+                const velocity = info.velocity.x;
+                const currentIndex = bookRef.current.pageFlip().getCurrentPageIndex();
+
+                // Log pour débogage mobile
+                console.log('Swipe détecté - Distance X:', distance, 'Velocity X:', velocity, 'Page actuelle:', currentIndex);
+
+                // Détection swipe DROITE (retour arrière)
+                const isSwipeRight = distance > 30 || velocity > 500;
+                // Détection swipe GAUCHE (avancer)
+                const isSwipeLeft = distance < -30 || velocity < -500;
+
+                if (isSwipeRight && currentIndex > 0) {
+                  console.log('→ flipPrev() - Swipe droite détecté');
+                  setTimeout(() => {
+                    bookRef.current?.pageFlip().flipPrev();
+                  }, 10);
+                } else if (isSwipeLeft) {
+                  console.log('← flipNext() - Swipe gauche détecté');
+                  setTimeout(() => {
+                    bookRef.current?.pageFlip().flipNext();
+                  }, 10);
+                }
+              }}
+              onTap={(e) => {
+                // Laisse passer les taps vers le contenu en dessous
+                e.stopPropagation();
+              }}
             />
           )}
 
@@ -333,7 +335,7 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           >
             {children}
           </HTMLFlipBook>
-        </motion.div>
+        </div>
       </div>
 
       {/* Aide visuelle Swipe (Mobile) */}

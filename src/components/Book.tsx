@@ -162,6 +162,7 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
   // Gestion swipe manuel pour mobile
   const touchStartX = useRef<number>(0)
   const touchStartTime = useRef<number>(0)
+  const isFlipping = useRef<boolean>(false)
 
   // Auto-hide UI mobile
   useEffect(() => {
@@ -218,7 +219,7 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
   }, [isMobile])
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!isMobile || !bookRef.current) return
+    if (!isMobile || !bookRef.current || isFlipping.current) return
 
     const touchEndX = e.changedTouches[0].clientX
     const distance = touchEndX - touchStartX.current
@@ -232,12 +233,22 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
     // Swipe DROITE (distance positive)
     if ((distance > 30 || velocity > 500) && currentIndex > 0) {
       console.log('→ flipPrev() détecté')
+      isFlipping.current = true
       bookRef.current.pageFlip().flipPrev()
+      // Réactive après animation
+      setTimeout(() => {
+        isFlipping.current = false
+      }, isMobile ? 400 : 600)
     }
     // Swipe GAUCHE (distance négative)
     else if ((distance < -30 || velocity > 500) && distance < 0) {
       console.log('← flipNext() détecté')
+      isFlipping.current = true
       bookRef.current.pageFlip().flipNext()
+      // Réactive après animation
+      setTimeout(() => {
+        isFlipping.current = false
+      }, isMobile ? 400 : 600)
     }
   }, [isMobile])
 
@@ -324,7 +335,7 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
             {children}
           </HTMLFlipBook>
 
-          {/* OVERLAY SWIPE - APRÈS FlipBook pour être vraiment au-dessus */}
+          {/* OVERLAY SWIPE - Capture touches uniquement, laisse passer clics */}
           {isMobile && (
             <div
               style={{
@@ -334,15 +345,17 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
                 touchAction: 'pan-x',
                 userSelect: 'none',
                 WebkitUserSelect: 'none',
-                // Semi-transparent pour debug visuel
-                background: 'rgba(255, 0, 0, 0.05)',
-                pointerEvents: 'auto' // Capture TOUS les événements
+                background: 'transparent',
+                pointerEvents: 'auto' // Capture événements tactiles
               } as React.CSSProperties}
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
               onClick={(e) => {
-                console.log('Overlay clicked');
-                e.preventDefault();
+                // Laisse passer vers le contenu
+                const target = e.target as HTMLElement;
+                if (target === e.currentTarget) {
+                  e.stopPropagation();
+                }
               }}
             />
           )}

@@ -304,13 +304,15 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           />
         )}
 
-        {/* WRAPPER SWIPE - Conteneur relatif pour l'overlay */}
+        {/* WRAPPER SWIPE - Capture tactile sur le conteneur lui-même */}
         <div
           className="relative"
           style={{
             width: isMobile ? '100%' : 'auto',
             height: isMobile ? '100%' : 'auto'
           }}
+          onTouchStart={isMobile ? handleTouchStart : undefined}
+          onTouchEnd={isMobile ? handleTouchEnd : undefined}
         >
           <HTMLFlipBook
             ref={bookRef}
@@ -341,31 +343,6 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           >
             {children}
           </HTMLFlipBook>
-
-          {/* OVERLAY SWIPE - Capture touches uniquement, laisse passer clics */}
-          {isMobile && (
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                zIndex: 9999,
-                touchAction: 'pan-x',
-                userSelect: 'none',
-                WebkitUserSelect: 'none',
-                background: 'transparent',
-                pointerEvents: 'auto' // Capture événements tactiles
-              } as React.CSSProperties}
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-              onClick={(e) => {
-                // Laisse passer vers le contenu
-                const target = e.target as HTMLElement;
-                if (target === e.currentTarget) {
-                  e.stopPropagation();
-                }
-              }}
-            />
-          )}
         </div>
       </div>
 

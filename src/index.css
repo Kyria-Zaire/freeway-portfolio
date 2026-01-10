@@ -82,6 +82,7 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-x: none; /* Empêche le swipe-back natif du navigateur */
 }
 
 /* Headings use Poppins */

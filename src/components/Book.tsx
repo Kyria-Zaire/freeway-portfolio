@@ -206,12 +206,13 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
   }, [isMobile])
 
   return (
-    <div 
+    <div
       className="fixed inset-0 overflow-hidden"
-      style={{ 
-        width: '100vw', 
+      style={{
+        width: '100vw',
         height: '100dvh',
-        backgroundColor: isMobile ? '#FDFBF7' : '#1A1A2E'
+        backgroundColor: isMobile ? '#FDFBF7' : '#1A1A2E',
+        overscrollBehaviorX: 'none' // Empêche le swipe-back natif
       }}
       onClick={handleTap}
     >
@@ -263,11 +264,22 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
              const distance = info.offset.x;
              const velocity = info.velocity.x;
 
-             // Tourne la page si : distance > 30px OU vitesse élevée (> 500)
-             if (distance > 30 || velocity > 500) {
+             // Log pour débogage mobile (à retirer en production si nécessaire)
+             console.log('Swipe détecté - Distance X:', distance, 'Velocity X:', velocity);
+
+             // Priorité à la distance intentionnelle, puis vitesse
+             if (distance > 30) {
+               console.log('→ flipPrev (swipe droite par distance)');
                bookRef.current.pageFlip().flipPrev(); // Swipe Droite → Page précédente
-             } else if (distance < -30 || velocity < -500) {
+             } else if (distance < -30) {
+               console.log('← flipNext (swipe gauche par distance)');
                bookRef.current.pageFlip().flipNext(); // Swipe Gauche → Page suivante
+             } else if (velocity > 500) {
+               console.log('→ flipPrev (swipe droite par vitesse)');
+               bookRef.current.pageFlip().flipPrev(); // Swipe rapide droite
+             } else if (velocity < -500) {
+               console.log('← flipNext (swipe gauche par vitesse)');
+               bookRef.current.pageFlip().flipNext(); // Swipe rapide gauche
              }
           }}
         >

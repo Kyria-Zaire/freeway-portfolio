@@ -226,29 +226,36 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
     const duration = Date.now() - touchStartTime.current
     const velocity = Math.abs(distance) / duration * 1000 // px/s
 
-    const currentIndex = bookRef.current.pageFlip().getCurrentPageIndex()
+    const flipAPI = bookRef.current.pageFlip()
+    const currentIndex = flipAPI.getCurrentPageIndex()
+    const totalPages = flipAPI.getPageCount()
 
-    console.log('Touch End - Distance:', distance, 'Velocity:', velocity, 'Page:', currentIndex)
+    console.log('Touch End - Distance:', distance, 'Velocity:', velocity, 'Page:', currentIndex, 'Total:', totalPages)
 
-    // Swipe DROITE (distance positive)
+    // Swipe DROITE (distance positive) - Retour arrière
     if ((distance > 30 || velocity > 500) && currentIndex > 0) {
-      console.log('→ flipPrev() détecté')
+      const targetPage = currentIndex - 1
+      console.log('→ turnToPage(' + targetPage + ') - Retour arrière')
       isFlipping.current = true
-      bookRef.current.pageFlip().flipPrev()
-      // Réactive après animation
+
+      // Force turnToPage au lieu de flipPrev
+      flipAPI.turnToPage(targetPage)
+
       setTimeout(() => {
         isFlipping.current = false
-      }, isMobile ? 400 : 600)
+      }, isMobile ? 450 : 650)
     }
-    // Swipe GAUCHE (distance négative)
-    else if ((distance < -30 || velocity > 500) && distance < 0) {
-      console.log('← flipNext() détecté')
+    // Swipe GAUCHE (distance négative) - Avancer
+    else if ((distance < -30 || velocity > 500) && distance < 0 && currentIndex < totalPages - 1) {
+      const targetPage = currentIndex + 1
+      console.log('← turnToPage(' + targetPage + ') - Avancer')
       isFlipping.current = true
-      bookRef.current.pageFlip().flipNext()
-      // Réactive après animation
+
+      flipAPI.turnToPage(targetPage)
+
       setTimeout(() => {
         isFlipping.current = false
-      }, isMobile ? 400 : 600)
+      }, isMobile ? 450 : 650)
     }
   }, [isMobile])
 

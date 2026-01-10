@@ -130,11 +130,12 @@ export const Page = forwardRef<HTMLDivElement, PageProps>(({ children, pageNumbe
       {/* Ombre reliure */}
       <div className="absolute left-0 top-0 bottom-0 w-[2vw] max-w-3 bg-gradient-to-r from-black/5 to-transparent pointer-events-none z-10" />
       
-      {/* Contenu - pointer-events auto uniquement pour les éléments interactifs */}
+      {/* Contenu - pointer-events auto pour interactions (liens, boutons) */}
       <div
         className="w-full h-full overflow-y-auto overflow-x-hidden"
         style={{
-          fontSize: 'clamp(12px, 3.5vw, 16px)'
+          fontSize: 'clamp(12px, 3.5vw, 16px)',
+          pointerEvents: 'auto' // Permet clics sur liens/boutons
         }}
       >
         {children}
@@ -247,14 +248,15 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           />
         )}
 
-        {/* WRAPPER SWIPE - Zone tactile prioritaire (z-index élevé) */}
+        {/* WRAPPER SWIPE - Zone tactile prioritaire mais transparente */}
         <motion.div
           className="relative"
           style={{
             width: isMobile ? '100%' : 'auto',
             height: isMobile ? '100%' : 'auto',
             touchAction: isMobile ? 'manipulation' : 'auto',
-            zIndex: 100 // Z-index élevé pour priorité sur contenu pages
+            zIndex: 100, // Z-index élevé pour priorité
+            pointerEvents: 'none' // Transparent aux clics, sauf enfants avec auto
           }}
           onPanEnd={(_event, info) => {
              // Swipe mobile avec détection velocity + offset
@@ -273,17 +275,16 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
              const isSwipeLeft = distance < -30 || velocity < -500;
 
              if (isSwipeRight && currentIndex > 0) {
-               const targetPage = currentIndex - 1;
-               console.log('→ turnToPage(' + targetPage + ') - Swipe droite détecté');
-               // Délai de sécurité pour éviter conflit avec événement pan
+               console.log('→ flipPrev() - Swipe droite détecté');
+               // Utilise flipPrev pour avoir l'animation
                setTimeout(() => {
-                 bookRef.current?.pageFlip().turnToPage(targetPage);
+                 bookRef.current?.pageFlip().flipPrev();
                }, 10);
              } else if (isSwipeLeft) {
-               const targetPage = currentIndex + 1;
-               console.log('← turnToPage(' + targetPage + ') - Swipe gauche détecté');
+               console.log('← flipNext() - Swipe gauche détecté');
+               // Utilise flipNext pour avoir l'animation
                setTimeout(() => {
-                 bookRef.current?.pageFlip().turnToPage(targetPage);
+                 bookRef.current?.pageFlip().flipNext();
                }, 10);
              }
           }}
@@ -302,11 +303,11 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
             mobileScrollSupport={false}
             onFlip={onFlip}
             className="shadow-2xl"
-            style={{ margin: '0 auto' }}
+            style={{ margin: '0 auto', pointerEvents: 'auto' }} // Reçoit les événements
             startPage={0}
             drawShadow={!isMobile}
             flippingTime={isMobile ? 400 : 600}
-            usePortrait={true} // Force mode portrait mobile (1 page à la fois)
+            usePortrait={isMobile} // Mobile: 1 page, Desktop: 2 pages
             startZIndex={0}
             autoSize={false}
             clickEventForward={true}

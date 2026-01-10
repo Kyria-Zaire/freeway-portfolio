@@ -154,10 +154,14 @@ export const PageComponent = Page
 export const Book = ({ children, disableFlip = false }: BookProps) => {
   const bookRef = useRef<PageFlipRef>(null)
   const { width, height, isMobile } = useFullScreenBook()
-  
+
   const [currentPage, setCurrentPage] = useState(0)
   const [isSoundEnabled, setIsSoundEnabled] = useState(true)
   const [showUI, setShowUI] = useState(true)
+
+  // Gestion swipe manuel pour mobile
+  const touchStartX = useRef<number>(0)
+  const touchStartTime = useRef<number>(0)
 
   // Auto-hide UI mobile
   useEffect(() => {
@@ -203,6 +207,38 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
 
   const handleTap = useCallback(() => {
     if (isMobile) setShowUI(prev => !prev)
+  }, [isMobile])
+
+  // Handlers swipe manuel
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!isMobile) return
+    touchStartX.current = e.touches[0].clientX
+    touchStartTime.current = Date.now()
+    console.log('Touch Start X:', touchStartX.current)
+  }, [isMobile])
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!isMobile || !bookRef.current) return
+
+    const touchEndX = e.changedTouches[0].clientX
+    const distance = touchEndX - touchStartX.current
+    const duration = Date.now() - touchStartTime.current
+    const velocity = Math.abs(distance) / duration * 1000 // px/s
+
+    const currentIndex = bookRef.current.pageFlip().getCurrentPageIndex()
+
+    console.log('Touch End - Distance:', distance, 'Velocity:', velocity, 'Page:', currentIndex)
+
+    // Swipe DROITE (distance positive)
+    if ((distance > 30 || velocity > 500) && currentIndex > 0) {
+      console.log('→ flipPrev() détecté')
+      bookRef.current.pageFlip().flipPrev()
+    }
+    // Swipe GAUCHE (distance négative)
+    else if ((distance < -30 || velocity > 500) && distance < 0) {
+      console.log('← flipNext() détecté')
+      bookRef.current.pageFlip().flipNext()
+    }
   }, [isMobile])
 
   return (
@@ -258,49 +294,22 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
             height: isMobile ? '100%' : 'auto'
           }}
         >
-          {/* OVERLAY SWIPE - Capture UNIQUEMENT les pans, laisse passer les clics */}
+          {/* OVERLAY SWIPE - Capture tactile native avec onTouchStart/End */}
           {isMobile && (
-            <motion.div
+            <div
               style={{
                 position: 'absolute',
                 inset: 0,
                 zIndex: 999,
-                touchAction: 'manipulation',
+                touchAction: 'pan-x', // Autorise pan horizontal
                 userSelect: 'none',
                 WebkitUserSelect: 'none',
-                // Transparent mais capture les gestes
-                background: 'transparent'
+                cursor: 'grab'
               } as React.CSSProperties}
-              onPanEnd={(_event, info) => {
-                // Swipe mobile avec détection velocity + offset
-                if (!bookRef.current) return;
-
-                const distance = info.offset.x;
-                const velocity = info.velocity.x;
-                const currentIndex = bookRef.current.pageFlip().getCurrentPageIndex();
-
-                // Log pour débogage mobile
-                console.log('Swipe détecté - Distance X:', distance, 'Velocity X:', velocity, 'Page actuelle:', currentIndex);
-
-                // Détection swipe DROITE (retour arrière)
-                const isSwipeRight = distance > 30 || velocity > 500;
-                // Détection swipe GAUCHE (avancer)
-                const isSwipeLeft = distance < -30 || velocity < -500;
-
-                if (isSwipeRight && currentIndex > 0) {
-                  console.log('→ flipPrev() - Swipe droite détecté');
-                  setTimeout(() => {
-                    bookRef.current?.pageFlip().flipPrev();
-                  }, 10);
-                } else if (isSwipeLeft) {
-                  console.log('← flipNext() - Swipe gauche détecté');
-                  setTimeout(() => {
-                    bookRef.current?.pageFlip().flipNext();
-                  }, 10);
-                }
-              }}
-              onTap={(e) => {
-                // Laisse passer les taps vers le contenu en dessous
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              onClick={(e) => {
+                // Ne bloque pas les clics, laisse propager
                 e.stopPropagation();
               }}
             />

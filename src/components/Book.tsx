@@ -1,9 +1,6 @@
 /**
  * Book.tsx - IMORIA Kindle-Like Experience
- * * VERSION GOLD MASTER
- * - Typescript Clean (Zéro erreur)
- * - Swipe Mobile Prioritaire (Framer Motion)
- * - Gestion des dimensions optimisée
+ * VERSION CLEAN - Swipe mobile simplifié
  */
 
 import { useRef, useState, useCallback, useEffect, forwardRef } from 'react'
@@ -66,18 +63,16 @@ const useFullScreenBook = (): FullScreenDimensions => {
       const isMobileDevice = vw < 768
 
       if (isMobileDevice) {
-        // MOBILE : 100% de l'écran
         setDims({
           width: vw,
           height: vh,
           isMobile: true,
         })
       } else {
-        // DESKTOP : Optimisé double page
         const targetHeight = vh * 0.95
         const aspectRatio = 0.68
         let pageWidth = targetHeight * aspectRatio
-        
+
         const maxPageWidth = (vw - 40) / 2
         if (pageWidth > maxPageWidth) {
           pageWidth = maxPageWidth
@@ -93,7 +88,7 @@ const useFullScreenBook = (): FullScreenDimensions => {
 
     calculate()
     window.addEventListener('resize', calculate)
-    
+
     return () => {
       window.removeEventListener('resize', calculate)
     }
@@ -108,17 +103,16 @@ const useFullScreenBook = (): FullScreenDimensions => {
 
 export const Page = forwardRef<HTMLDivElement, PageProps>(({ children, pageNumber, totalPages = 6 }, ref) => {
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       className="relative w-full h-full overflow-hidden"
       style={{ backgroundColor: '#FDFBF7' }}
       data-page={pageNumber}
     >
-      {/* Indicateur de page */}
       {pageNumber && (
-        <div 
+        <div
           className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium z-20 pointer-events-none"
-          style={{ 
+          style={{
             backgroundColor: 'rgba(0, 0, 0, 0.08)',
             color: 'rgba(0, 0, 0, 0.5)'
           }}
@@ -126,17 +120,12 @@ export const Page = forwardRef<HTMLDivElement, PageProps>(({ children, pageNumbe
           {pageNumber}/{totalPages}
         </div>
       )}
-      
-      {/* Ombre reliure */}
+
       <div className="absolute left-0 top-0 bottom-0 w-[2vw] max-w-3 bg-gradient-to-r from-black/5 to-transparent pointer-events-none z-10" />
-      
-      {/* Contenu - pointer-events auto pour interactions (liens, boutons) */}
+
       <div
         className="w-full h-full overflow-y-auto overflow-x-hidden"
-        style={{
-          fontSize: 'clamp(12px, 3.5vw, 16px)',
-          pointerEvents: 'auto' // Permet clics sur liens/boutons
-        }}
+        style={{ fontSize: 'clamp(12px, 3.5vw, 16px)' }}
       >
         {children}
       </div>
@@ -159,33 +148,30 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
   const [isSoundEnabled, setIsSoundEnabled] = useState(true)
   const [showUI, setShowUI] = useState(true)
 
-  // Gestion swipe manuel pour mobile
-  const touchStartX = useRef<number>(0)
-  const touchStartTime = useRef<number>(0)
-  const isFlipping = useRef<boolean>(false)
+  // Refs pour swipe
+  const swipeStartX = useRef<number>(0)
+  const swipeStartY = useRef<number>(0)
 
-  // Auto-hide UI mobile
   useEffect(() => {
     if (!isMobile) return
     const timer = setTimeout(() => setShowUI(false), 3000)
     return () => clearTimeout(timer)
   }, [isMobile])
 
-  // Gestion Son
   const playSound = useCallback(() => {
     if (!isSoundEnabled) return
     try {
       const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
       const ctx = new AudioContextClass()
       const now = ctx.currentTime
-      
+
       const buf = ctx.createBuffer(1, ctx.sampleRate * 0.1, ctx.sampleRate)
       const data = buf.getChannelData(0)
       for (let i = 0; i < data.length; i++) {
         const t = i / data.length
         data[i] = (Math.random() * 2 - 1) * Math.sin(t * Math.PI) * 0.1 * Math.exp(-t * 4)
       }
-      
+
       const src = ctx.createBufferSource()
       src.buffer = buf
       const filter = ctx.createBiquadFilter()
@@ -193,7 +179,7 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
       filter.frequency.value = 600
       const gain = ctx.createGain()
       gain.gain.value = 0.3
-      
+
       src.connect(filter).connect(gain).connect(ctx.destination)
       src.start(now)
       setTimeout(() => ctx.close(), 150)
@@ -210,54 +196,33 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
     if (isMobile) setShowUI(prev => !prev)
   }, [isMobile])
 
-  // Handlers swipe manuel
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (!isMobile) return
-    touchStartX.current = e.touches[0].clientX
-    touchStartTime.current = Date.now()
-    console.log('Touch Start X:', touchStartX.current)
-  }, [isMobile])
+  // Swipe handlers ultra-simples
+  const handleSwipeStart = useCallback((clientX: number, clientY: number) => {
+    swipeStartX.current = clientX
+    swipeStartY.current = clientY
+  }, [])
 
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!isMobile || !bookRef.current || isFlipping.current) return
+  const handleSwipeEnd = useCallback((clientX: number, clientY: number) => {
+    if (!bookRef.current) return
 
-    const touchEndX = e.changedTouches[0].clientX
-    const distance = touchEndX - touchStartX.current
-    const duration = Date.now() - touchStartTime.current
-    const velocity = Math.abs(distance) / duration * 1000 // px/s
+    const deltaX = clientX - swipeStartX.current
+    const deltaY = clientY - swipeStartY.current
+
+    // Vérifie que c'est bien un swipe horizontal (pas vertical)
+    if (Math.abs(deltaY) > Math.abs(deltaX)) return
 
     const flipAPI = bookRef.current.pageFlip()
-    const currentIndex = flipAPI.getCurrentPageIndex()
-    const totalPages = flipAPI.getPageCount()
+    const currentIdx = flipAPI.getCurrentPageIndex()
 
-    console.log('Touch End - Distance:', distance, 'Velocity:', velocity, 'Page:', currentIndex, 'Total:', totalPages)
-
-    // Swipe DROITE (distance positive) - Retour arrière
-    if ((distance > 30 || velocity > 500) && currentIndex > 0) {
-      const targetPage = currentIndex - 1
-      console.log('→ turnToPage(' + targetPage + ') - Retour arrière')
-      isFlipping.current = true
-
-      // Force turnToPage au lieu de flipPrev
-      flipAPI.turnToPage(targetPage)
-
-      setTimeout(() => {
-        isFlipping.current = false
-      }, isMobile ? 450 : 650)
+    // Swipe vers la droite = page précédente
+    if (deltaX > 50 && currentIdx > 0) {
+      flipAPI.turnToPage(currentIdx - 1)
     }
-    // Swipe GAUCHE (distance négative) - Avancer
-    else if ((distance < -30 || velocity > 500) && distance < 0 && currentIndex < totalPages - 1) {
-      const targetPage = currentIndex + 1
-      console.log('← turnToPage(' + targetPage + ') - Avancer')
-      isFlipping.current = true
-
-      flipAPI.turnToPage(targetPage)
-
-      setTimeout(() => {
-        isFlipping.current = false
-      }, isMobile ? 450 : 650)
+    // Swipe vers la gauche = page suivante
+    else if (deltaX < -50) {
+      flipAPI.turnToPage(currentIdx + 1)
     }
-  }, [isMobile])
+  }, [])
 
   return (
     <div
@@ -266,11 +231,20 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
         width: '100vw',
         height: '100dvh',
         backgroundColor: isMobile ? '#FDFBF7' : '#1A1A2E',
-        overscrollBehaviorX: 'none', // Empêche le swipe-back natif
-        userSelect: isMobile ? 'none' : 'auto', // Désactive sélection texte sur mobile
-        WebkitUserSelect: isMobile ? 'none' : 'auto'
+        overscrollBehaviorX: 'none',
+        touchAction: isMobile ? 'pan-x' : 'auto'
       } as React.CSSProperties}
       onClick={handleTap}
+      onTouchStart={(e) => {
+        if (isMobile && e.touches[0]) {
+          handleSwipeStart(e.touches[0].clientX, e.touches[0].clientY)
+        }
+      }}
+      onTouchEnd={(e) => {
+        if (isMobile && e.changedTouches[0]) {
+          handleSwipeEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY)
+        }
+      }}
     >
       {/* Bouton Son */}
       <AnimatePresence>
@@ -304,46 +278,35 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           />
         )}
 
-        {/* WRAPPER SWIPE - Capture tactile sur le conteneur lui-même */}
-        <div
-          className="relative"
-          style={{
-            width: isMobile ? '100%' : 'auto',
-            height: isMobile ? '100%' : 'auto'
-          }}
-          onTouchStart={isMobile ? handleTouchStart : undefined}
-          onTouchEnd={isMobile ? handleTouchEnd : undefined}
+        <HTMLFlipBook
+          ref={bookRef}
+          width={width}
+          height={height}
+          size="fixed"
+          minWidth={280}
+          maxWidth={width}
+          minHeight={400}
+          maxHeight={height}
+          maxShadowOpacity={isMobile ? 0.1 : 0.35}
+          showCover={true}
+          mobileScrollSupport={false}
+          onFlip={onFlip}
+          className="shadow-2xl"
+          style={{ margin: '0 auto' }}
+          startPage={0}
+          drawShadow={!isMobile}
+          flippingTime={isMobile ? 400 : 600}
+          usePortrait={isMobile}
+          startZIndex={0}
+          autoSize={false}
+          clickEventForward={true}
+          useMouseEvents={!isMobile}
+          swipeDistance={isMobile ? 0 : 30}
+          showPageCorners={!isMobile}
+          disableFlipByClick={isMobile || disableFlip}
         >
-          <HTMLFlipBook
-            ref={bookRef}
-            width={width}
-            height={height}
-            size="fixed"
-            minWidth={280}
-            maxWidth={width}
-            minHeight={400}
-            maxHeight={height}
-            maxShadowOpacity={isMobile ? 0.1 : 0.35}
-            showCover={true}
-            mobileScrollSupport={false}
-            onFlip={onFlip}
-            className="shadow-2xl"
-            style={{ margin: '0 auto', pointerEvents: 'auto' }} // Reçoit les événements
-            startPage={0}
-            drawShadow={!isMobile}
-            flippingTime={isMobile ? 400 : 600}
-            usePortrait={isMobile} // Mobile: 1 page, Desktop: 2 pages
-            startZIndex={0}
-            autoSize={false}
-            clickEventForward={true}
-            useMouseEvents={!isMobile} // PC: souris active, Mobile: désactivé (géré par Motion)
-            swipeDistance={isMobile ? 0 : 30} // PC: swipe natif 30px, Mobile: géré par Motion
-            showPageCorners={!isMobile}
-            disableFlipByClick={isMobile || disableFlip}
-          >
-            {children}
-          </HTMLFlipBook>
-        </div>
+          {children}
+        </HTMLFlipBook>
       </div>
 
       {/* Aide visuelle Swipe (Mobile) */}
@@ -355,7 +318,7 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           transition={{ delay: 1.5 }}
           className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
         >
-          <motion.p 
+          <motion.p
             animate={{ x: [-5, 5, -5] }}
             transition={{ repeat: 3, duration: 0.8 }}
             className="text-white/70 text-xs font-medium px-3 py-1.5 rounded-full"

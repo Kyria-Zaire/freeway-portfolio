@@ -130,12 +130,11 @@ export const Page = forwardRef<HTMLDivElement, PageProps>(({ children, pageNumbe
       {/* Ombre reliure */}
       <div className="absolute left-0 top-0 bottom-0 w-[2vw] max-w-3 bg-gradient-to-r from-black/5 to-transparent pointer-events-none z-10" />
       
-      {/* Contenu */}
+      {/* Contenu - pointer-events auto uniquement pour les éléments interactifs */}
       <div
         className="w-full h-full overflow-y-auto overflow-x-hidden"
         style={{
-          fontSize: 'clamp(12px, 3.5vw, 16px)',
-          pointerEvents: 'auto' // Permet interactions dans le contenu
+          fontSize: 'clamp(12px, 3.5vw, 16px)'
         }}
       >
         {children}
@@ -248,14 +247,14 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
           />
         )}
 
-        {/* WRAPPER SWIPE - Gestion mobile avec Framer Motion */}
+        {/* WRAPPER SWIPE - Zone tactile prioritaire (z-index élevé) */}
         <motion.div
           className="relative"
           style={{
             width: isMobile ? '100%' : 'auto',
             height: isMobile ? '100%' : 'auto',
             touchAction: isMobile ? 'manipulation' : 'auto',
-            zIndex: 10
+            zIndex: 100 // Z-index élevé pour priorité sur contenu pages
           }}
           onPanEnd={(_event, info) => {
              // Swipe mobile avec détection velocity + offset
@@ -263,23 +262,29 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
 
              const distance = info.offset.x;
              const velocity = info.velocity.x;
+             const currentIndex = bookRef.current.pageFlip().getCurrentPageIndex();
 
-             // Log pour débogage mobile (à retirer en production si nécessaire)
-             console.log('Swipe détecté - Distance X:', distance, 'Velocity X:', velocity);
+             // Log pour débogage mobile
+             console.log('Swipe détecté - Distance X:', distance, 'Velocity X:', velocity, 'Page actuelle:', currentIndex);
 
-             // Priorité à la distance intentionnelle, puis vitesse
-             if (distance > 30) {
-               console.log('→ flipPrev (swipe droite par distance)');
-               bookRef.current.pageFlip().flipPrev(); // Swipe Droite → Page précédente
-             } else if (distance < -30) {
-               console.log('← flipNext (swipe gauche par distance)');
-               bookRef.current.pageFlip().flipNext(); // Swipe Gauche → Page suivante
-             } else if (velocity > 500) {
-               console.log('→ flipPrev (swipe droite par vitesse)');
-               bookRef.current.pageFlip().flipPrev(); // Swipe rapide droite
-             } else if (velocity < -500) {
-               console.log('← flipNext (swipe gauche par vitesse)');
-               bookRef.current.pageFlip().flipNext(); // Swipe rapide gauche
+             // Détection swipe DROITE (retour arrière)
+             const isSwipeRight = distance > 30 || velocity > 500;
+             // Détection swipe GAUCHE (avancer)
+             const isSwipeLeft = distance < -30 || velocity < -500;
+
+             if (isSwipeRight && currentIndex > 0) {
+               const targetPage = currentIndex - 1;
+               console.log('→ turnToPage(' + targetPage + ') - Swipe droite détecté');
+               // Délai de sécurité pour éviter conflit avec événement pan
+               setTimeout(() => {
+                 bookRef.current?.pageFlip().turnToPage(targetPage);
+               }, 10);
+             } else if (isSwipeLeft) {
+               const targetPage = currentIndex + 1;
+               console.log('← turnToPage(' + targetPage + ') - Swipe gauche détecté');
+               setTimeout(() => {
+                 bookRef.current?.pageFlip().turnToPage(targetPage);
+               }, 10);
              }
           }}
         >
@@ -297,11 +302,11 @@ export const Book = ({ children, disableFlip = false }: BookProps) => {
             mobileScrollSupport={false}
             onFlip={onFlip}
             className="shadow-2xl"
-            style={{ margin: '0 auto', pointerEvents: 'auto' }}
+            style={{ margin: '0 auto' }}
             startPage={0}
             drawShadow={!isMobile}
             flippingTime={isMobile ? 400 : 600}
-            usePortrait={isMobile}
+            usePortrait={true} // Force mode portrait mobile (1 page à la fois)
             startZIndex={0}
             autoSize={false}
             clickEventForward={true}
